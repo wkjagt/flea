@@ -13,6 +13,11 @@ module Flea
       [:space,        /[\s\n]+/,                                            -> m { m }        ],
     ]
 
+    def parse_string
+      remove_comments
+      parse
+    end
+
     def parse
       exp = []
       while true
@@ -40,6 +45,13 @@ module Flea
         return type, proc.call(matched) if scan(pattern)
       end
       raise "Invalid character at position #{pos} near '#{scan(%r{.{0,20}})}'."
+    end
+
+    def remove_comments
+      string.lines.map do |line|
+        next line unless line.include?(';')
+        line.slice(/.*;/)[0..-2]
+      end
     end
   end
 end

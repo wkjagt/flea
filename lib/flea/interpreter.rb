@@ -8,7 +8,7 @@ module Flea
     end
 
     def run(program)
-      Parser.new(program).parse.map { |exp| evaluate(exp) }.last
+      Parser.new(program).parse_string.map { |exp| evaluate(exp) }.last
     end
 
     def evaluate(expression)
