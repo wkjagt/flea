@@ -23,7 +23,7 @@ module Flea
     def call_function(function_name, *arguments)
       function = evaluate(function_name)
 
-      raise RuntimeError, "\n#{@parser.to_sexp(expression)}\n ^\n\n#{expression[0]} is not a function" unless function.is_a? Proc
+      raise RuntimeError, "#{function_name} is not a function" unless function.is_a? Proc
       function.call(arguments, self)
     end
   end

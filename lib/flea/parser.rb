@@ -2,63 +2,44 @@ require 'strscan'
 
 module Flea
   class Parser < StringScanner
-    def initialize(string)
-      unless(string.count('(') == string.count(')'))
-        raise Exception, "Missing closing parentheses"
-      end
-      super(string)
-    end
+    RULES = [
+      [:open_paren,   /\(/,                                                 -> m { m }        ],
+      [:close_paren,  /\)/,                                                 -> m { m }        ],
+      [:string,       /"([^"\\]|\\.)*"/,                                    -> m { m[1..-2] } ],
+      [:float,        /[\-\+]? [0-9]+ ((e[0-9]+) | (\.[0-9]+(e[0-9]+)?))/x, -> m { m.to_f }   ],
+      [:integer,      /[\-\+]?[0-9]+/,                                      -> m { m.to_i }   ],
+      [:quote,        /'/,                                                  -> m { m.to_sym } ],
+      [:symbol,       /[^\(\)\s]+/,                                         -> m { m.to_sym } ],
+      [:space,        /[\s\n]+/,                                            -> m { m }        ],
+    ]
 
     def parse
       exp = []
       while true
-        case fetch_token
-          when '('
-            exp << parse
-          when ')'
-            break
-          when :"'"
-            case fetch_token
-            when '(' then exp << [:quote].concat([parse])
-            else exp << [:quote, @token]
-            end
-          when String, Fixnum, Float, Symbol
-            exp << @token
-          when nil
-            break
+        type, token = fetch_token
+        break if eos?
+
+        case type
+        when :open_paren then exp << parse
+        when :close_paren then break
+        when :quote
+          type, _ = fetch_token
+          case type
+          when :open_paren then exp << [:quote, parse]
+          else exp << [:quote, token]
+          end
+        when :space
+        else exp << token
         end
       end
       exp
     end
 
     def fetch_token
-      skip(/\s+/)
-      return nil if(eos?)
-
-      @token =
-      # Match parentheses
-      if scan(/[\(\)]/)
-        matched
-      # Match a string literal
-      elsif scan(/"([^"\\]|\\.)*"/)
-        eval(matched)
-      # Match a float literal
-      elsif scan(/[\-\+]? [0-9]+ ((e[0-9]+) | (\.[0-9]+(e[0-9]+)?))/x)
-        matched.to_f
-      # Match an integer literal
-      elsif scan(/[\-\+]?[0-9]+/)
-        matched.to_i
-      # Match a comma (for comma quoting)
-      elsif scan(/'/)
-        matched.to_sym
-      # Match a symbol
-      elsif scan(/[^\(\)\s]+/)
-        matched.to_sym
-      # If we've gotten here then we have an invalid token
-      else
-        near = scan %r{.{0,20}}
-        raise "Invalid character at position #{pos} near '#{near}'."
+      RULES.each do |type, pattern, proc|
+        return type, proc.call(matched) if scan(pattern)
       end
+      raise "Invalid character at position #{pos} near '#{scan(%r{.{0,20}})}'."
     end
   end
 end
