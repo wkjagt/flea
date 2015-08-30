@@ -1,3 +1,3 @@
 (define null?
-  (lambda (arg)
-    (equal? arg '())))
+  (lambda (l_arg)
+    (equal? l_arg '())))

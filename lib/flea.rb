@@ -3,3 +3,4 @@ require "sexpistol"
 
 require File.expand_path(File.join(File.dirname(__FILE__), "flea", "environment.rb"))
 require File.expand_path(File.join(File.dirname(__FILE__), "flea", "interpreter.rb"))
+require File.expand_path(File.join(File.dirname(__FILE__), "flea", "standard_library.rb"))
