@@ -8,27 +8,23 @@ module Flea
     end
 
     def run(program)
-      parser(program).parse.map { |exp| evaluate(exp) }.last
-    end
-
-    def parser(program)
-      Parser.new(program)
+      Parser.new(program).parse.map { |exp| evaluate(exp) }.last
     end
 
     def evaluate(expression)
       return @env.find(expression) if expression.is_a? Symbol
       return expression unless expression.is_a? Array
 
-      if expression[0] == :define
-        @env.define(expression[1], evaluate(expression[2]))
+      call_function(*expression)
+    end
 
-      else # function call
-        function_name, *arguments = expression
-        function = evaluate(function_name)
+    private
 
-        raise RuntimeError, "\n#{@parser.to_sexp(expression)}\n ^\n\n#{expression[0]} is not a function" unless function.is_a? Proc
-        function.call(arguments, self)
-      end
+    def call_function(function_name, *arguments)
+      function = evaluate(function_name)
+
+      raise RuntimeError, "\n#{@parser.to_sexp(expression)}\n ^\n\n#{expression[0]} is not a function" unless function.is_a? Proc
+      function.call(arguments, self)
     end
   end
 end
