@@ -1,19 +1,18 @@
 module Flea
   class Interpreter
-
-   attr_accessor :parser, :env
+    attr_accessor :parser, :env
 
     def initialize(options = {}, env: Environment.new)
       @env = env
-      @parser = Sexpistol.new
-      @parser.ruby_keyword_literals = false
-      @parser.scheme_compatability = true
-
       StandardLibrary.new(self).load
     end
 
     def run(program)
-      @parser.parse_string(program).map { |exp| evaluate(exp) }.last
+      parser(program).parse.map { |exp| evaluate(exp) }.last
+    end
+
+    def parser(program)
+      Parser.new(program)
     end
 
     def evaluate(expression)
@@ -22,9 +21,6 @@ module Flea
 
       if expression[0] == :define
         @env.define(expression[1], evaluate(expression[2]))
-
-      elsif expression[0] == :native_function
-        eval expression[1]
 
       else # function call
         function_name, *arguments = expression

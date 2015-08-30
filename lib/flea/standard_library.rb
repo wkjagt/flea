@@ -1,23 +1,26 @@
 module Flea
   class StandardLibrary
+    NATIVE_FUNCTIONS, FUNCTIONS = [], []
+
+    def self.add(expression)
+      FUNCTIONS << expression
+    end
+
+    def self.add_native(function, proc)
+      NATIVE_FUNCTIONS << [function, proc]
+    end
+
+    Dir["#{File.dirname(__FILE__)}/standard_library/*.rb"].each do |file|
+      require file
+    end
+
     def initialize(interpreter)
       @interpreter = interpreter
     end
 
     def load
-      native_pattern = File.join(File.dirname(__FILE__), 'standard_library', 'native', '*.rb')
-      library_pattern = File.join(File.dirname(__FILE__), 'standard_library', '*.scm')
-
-      Dir[native_pattern].each do |item|
-        File.open(item) do |file|
-          expression = eval(file.read)
-          @interpreter.env.define(*expression)
-        end
-      end
-
-      Dir[library_pattern].each do |item|
-        File.open(item) { |file| @interpreter.run(file.read) }
-      end
+      NATIVE_FUNCTIONS.each { |function| @interpreter.env.define(*function) }
+      FUNCTIONS.each { |function| @interpreter.run(function) }
     end
   end
 end

@@ -1,4 +1,4 @@
-[
+Flea::StandardLibrary.add_native *[
   :cons,
   Proc.new() do |arguments, interpreter|
     arg_1 = interpreter.evaluate(arguments[0])

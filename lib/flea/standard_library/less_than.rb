@@ -1,4 +1,4 @@
-[
+Flea::StandardLibrary.add_native *[
   'less-than?'.to_sym,
   Proc.new() do |arguments, interpreter|
     arguments.slice(1, arguments.length).all? do |x|

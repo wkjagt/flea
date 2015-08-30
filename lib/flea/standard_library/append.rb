@@ -1,4 +1,4 @@
-[
+Flea::StandardLibrary.add_native *[
   :append,
   Proc.new() do |arguments, interpreter|
 

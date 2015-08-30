@@ -1,4 +1,4 @@
-[
+Flea::StandardLibrary.add_native *[
   :begin,
   Proc.new() do |arguments, interpreter|
     val = nil

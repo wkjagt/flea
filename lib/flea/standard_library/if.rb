@@ -1,4 +1,4 @@
-[
+Flea::StandardLibrary.add_native *[
   :if,
   Proc.new() do |arguments, interpreter|
     if(interpreter.evaluate(arguments[0]))

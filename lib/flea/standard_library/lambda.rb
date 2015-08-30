@@ -1,4 +1,4 @@
-[
+Flea::StandardLibrary.add_native *[
   :lambda,
   Proc.new do |arguments, interpreter|
     formals, *body = arguments
